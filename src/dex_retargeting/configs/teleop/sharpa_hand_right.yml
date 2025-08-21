@@ -1,0 +1,46 @@
+retargeting:
+  type: vector
+  urdf_path: sharpa_hand/src/right_sharpa_ha4/right_sharpa_ha4_v2_1.urdf
+
+  # Target refers to the retargeting target, which is the robot hand
+  target_joint_names: [
+    'right_thumb_CMC_FE',
+    'right_thumb_CMC_AA', 
+    'right_thumb_MCP_FE',
+    'right_thumb_MCP_AA',
+    'right_thumb_IP',
+    'right_index_MCP_FE',
+    'right_index_MCP_AA',
+    'right_index_PIP',
+    'right_index_DIP',
+    'right_middle_MCP_FE',
+    'right_middle_MCP_AA',
+    'right_middle_PIP',
+    'right_middle_DIP',
+    'right_ring_MCP_FE',
+    'right_ring_MCP_AA',
+    'right_ring_PIP',
+    'right_ring_DIP',
+    'right_pinky_CMC',
+    'right_pinky_MCP_FE',
+    'right_pinky_MCP_AA',
+    'right_pinky_PIP',
+    'right_pinky_DIP'
+  ]
+
+  target_origin_link_names: [ 
+    "right_hand_C_MC", "right_hand_C_MC", "right_hand_C_MC", "right_hand_C_MC", "right_hand_C_MC",
+    "right_thumb_CMC_VL", "right_index_MCP_VL", "right_middle_MCP_VL", "right_ring_MCP_VL", "right_pinky_MCP_VL",
+    ]
+  target_task_link_names: [ 
+    "right_thumb_tip", "right_index_tip", "right_middle_tip", "right_ring_tip", "right_pinky_tip",
+    "right_thumb_tip", "right_index_tip", "right_middle_tip", "right_ring_tip", "right_pinky_tip",
+    ]
+  scaling_factor: 1.1
+
+  # Source refers to the retargeting input, which usually corresponds to the human hand
+  # The joint indices of human hand joint which corresponds to each link in the target_link_names
+  target_link_human_indices: [ [ 0, 0, 0, 0, 0, 1, 5, 9, 13, 17 ], [ 4, 8, 12, 16, 20, 4, 8, 12, 16, 20 ] ]
+
+  # A smaller alpha means stronger filtering, i.e. more smooth but also larger latency
+  low_pass_alpha: 0.2

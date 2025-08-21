@@ -4,6 +4,7 @@ from pathlib import Path
 from queue import Empty
 from typing import Optional
 
+import os
 import cv2
 import numpy as np
 import sapien
@@ -88,7 +89,7 @@ def start_retargeting(queue: multiprocessing.Queue, robot_dir: str, config_path:
     elif "svh" in robot_name:
         loader.scale = 1.5
 
-    if "glb" not in robot_name:
+    if "glb" not in robot_name and os.path.exists(str(filepath).replace(".urdf", "_glb.urdf")):
         filepath = str(filepath).replace(".urdf", "_glb.urdf")
     else:
         filepath = str(filepath)
