@@ -20,6 +20,7 @@ from dex_retargeting.constants import (
 )
 from dex_retargeting.retargeting_config import RetargetingConfig
 from single_hand_detector import SingleHandDetector
+import pyrealsense2 as rs
 
 
 def start_retargeting(queue: multiprocessing.Queue, robot_dir: str, config_path: str):
@@ -152,18 +153,47 @@ def start_retargeting(queue: multiprocessing.Queue, robot_dir: str, config_path:
             viewer.render()
 
 
-def produce_frame(queue: multiprocessing.Queue, camera_path: Optional[str] = None):
-    if camera_path is None:
-        cap = cv2.VideoCapture(0)
-    else:
-        cap = cv2.VideoCapture(camera_path)
+# def produce_frame(queue, camera_path: Optional[str] = None):
+#     if camera_path is None:
+#         cap = cv2.VideoCapture(0)
+#     else:
+#         cap = cv2.VideoCapture(camera_path)
 
-    while cap.isOpened():
-        success, image = cap.read()
-        time.sleep(1 / 30.0)
-        if not success:
-            continue
-        queue.put(image)
+#     while cap.isOpened():
+#         success, image = cap.read()
+#         time.sleep(1 / 30.0)
+#         if not success:
+#             continue
+#         queue.put(image)
+
+
+def produce_frame(queue):
+    pipeline = rs.pipeline()
+    config = rs.config()
+    config.enable_stream(rs.stream.depth, 640, 480, rs.format.z16, 30)
+    config.enable_stream(rs.stream.color, 640, 480, rs.format.bgr8, 30)
+    profile = pipeline.start(config)
+    align = rs.align(rs.stream.color)
+
+    # 获取相机内参
+    color_profile = rs.video_stream_profile(profile.get_stream(rs.stream.color))
+    intrinsics = color_profile.get_intrinsics()
+    fx, fy, cx, cy = intrinsics.fx, intrinsics.fy, intrinsics.ppx, intrinsics.ppy
+
+    try:
+        while True:
+            frames = pipeline.wait_for_frames()
+            aligned = align.process(frames)
+            color_img = np.asanyarray(aligned.get_color_frame().get_data())
+            depth_img = np.asanyarray(aligned.get_depth_frame().get_data())
+            if queue.full():
+                try:
+                    queue.get_nowait()
+                except Empty:
+                    pass
+            queue.put(color_img)
+    finally:
+        pipeline.stop()
 
 
 def main(

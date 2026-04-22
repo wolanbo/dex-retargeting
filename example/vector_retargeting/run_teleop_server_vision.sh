@@ -1,0 +1,1 @@
+python teleop_server_vision.py --robot-name inspire --retargeting-type dexpilot --hand_type right
